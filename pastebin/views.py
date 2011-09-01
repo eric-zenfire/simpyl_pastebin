@@ -72,7 +72,7 @@ def main(request):
         id = None
 
         for idsize in range(1, len(hash) + 1) :
-            useid = hash[0:idsize]
+            useid = 'p' + hash[0:idsize]
 
             try :
                 Paste.objects.get(url=useid)
@@ -81,32 +81,31 @@ def main(request):
                 break
 
         if id :
-            id = 'p' + id
             p = Paste(content=previous, url=id)
             p.save()
         
-        host = sanitize_nasty(request.get_host())
-        if hasattr(settings, 'SIMPYL_SEARCH_PATH_OK') :
-            if host.endswith('.' + settings.SIMPYL_SEARCH_PATH_OK) :
-                host = host[0:-len(settings.SIMPYL_SEARCH_PATH_OK)-1]
+            host = sanitize_nasty(request.get_host())
+            if hasattr(settings, 'SIMPYL_SEARCH_PATH_OK') :
+                if host.endswith('.' + settings.SIMPYL_SEARCH_PATH_OK) :
+                    host = host[0:-len(settings.SIMPYL_SEARCH_PATH_OK)-1]
         
-        previous = 'http://%s/%s' % (host, id)
+            previous = 'http://%s/%s' % (host, id)
 
-        if hasattr(settings, 'SIMPYL_PASTEBIN_ZMQ_URL') :
-            import zmq
-            ztx = zmq.Context()
-            pub = ztx.socket(zmq.PUB)
-            pub.connect(settings.SIMPYL_PASTEBIN_ZMQ_URL)
+            if hasattr(settings, 'SIMPYL_PASTEBIN_ZMQ_URL') :
+                import zmq
+                ztx = zmq.Context()
+                pub = ztx.socket(zmq.PUB)
+                pub.connect(settings.SIMPYL_PASTEBIN_ZMQ_URL)
 
-            if not user_name :
-                try :
-                    user_name = sanitize_username(request.META['HTTP_X_REAL_IP'])
-                except :
-                    user_name = request.META['REMOTE_ADDR']
-            else :
-                ucookie = user_name
-
-            pub.send("action::paste by %s: %s" % (user_name, previous))
+                if not user_name :
+                    try :
+                        user_name = sanitize_username(request.META['HTTP_X_REAL_IP'])
+                    except :
+                        user_name = request.META['REMOTE_ADDR']
+                else :
+                    ucookie = user_name
+                zm_action = "action::paste by %s: %s" % (user_name, previous)
+                pub.send(zm_action)
             
     t = loader.get_template('index.html')
 
@@ -141,10 +140,10 @@ def fetch_paste(request):
         c = Context({
         'title': titl + ' 404',
         'title_low': titl.lower() + ' 404',
-            'error': "Paste requested does not exist."
+            'error': "Paste requested does not exist, or internal error."
         })
         return http.HttpResponse(t.render(c))
-    
+   
     repl = [
         ("\t", "  "),
         (" ", "&nbsp;"),
