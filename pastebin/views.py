@@ -62,12 +62,13 @@ def main(request):
     ucookie = False
 
     if previous:
+        previous_ascii = previous.encode("utf-8")
         try:
             import hashlib
-            hash = hashlib.md5(previous).hexdigest()
+            hash = hashlib.md5(previous_ascii).hexdigest()
         except:
             import md5
-            hash = md5.new(previous).hexdigest()
+            hash = md5.new(previous_ascii).hexdigest()
 
         id = None
 
