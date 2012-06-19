@@ -15,7 +15,7 @@ from django.db import models
 
 class Paste(models.Model):
     content = models.CharField(max_length=1000000)
-    url = models.CharField(max_length=32)
+    url = models.CharField(max_length=32, unique=True)
     user_name = models.CharField(max_length=64, default="")
     title = models.CharField(max_length=64, default="untitled")
     tsms = models.BigIntegerField(blank=True, null=True)

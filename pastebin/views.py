@@ -80,13 +80,15 @@ def main(request):
         title = to_ascii_lazy(request.POST.get('title', 'untitled'))
         tsms = long(time.time() * 1000)
 
-        previous_ascii = previous.encode("utf-8")
+        hash_inputs = [previous.encode("utf-8"), user_name + '-' + str(tsms)]
         try:
             import hashlib
-            hash = hashlib.md5(previous_ascii).hexdigest()
+            hasher = lambda hash_input: hashlib.md5(hash_input).hexdigest()
         except:
             import md5
-            hash = md5.new(previous_ascii).hexdigest()
+            hasher = lambda hash_input: md5.new(hash_input).hexdigest()
+
+        hash = ''.join([hasher(hash_input) for hash_input in hash_inputs])
 
         id = None
 
