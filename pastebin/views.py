@@ -12,6 +12,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import cgi
+import time, datetime
 
 from django import http
 from django.template import Context, loader
@@ -43,8 +44,14 @@ def sanitize_nasty(txt) :
         txt = unicodedata.normalize('NFKD', txt).encode('ascii','ignore')
     return (''.join([c for c in txt if c in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_- .,^']))
 
+def to_ascii_lazy(txt) :
+    if not isinstance(txt, str) :
+      return unicodedata.normalize('NFKD', txt).encode('ascii','ignore')
+    else :
+      return txt
+
 def sanitize_username(user_name) :
-    return sanitize_nasty(user_name)[0:50]
+    return sanitize_nasty(user_name)[:64]
 
 def main(request):
     previous = request.POST.get('paste', '')
@@ -62,6 +69,17 @@ def main(request):
     ucookie = False
 
     if previous:
+        if not user_name :
+            try :
+                user_name = sanitize_username(request.META['HTTP_X_REAL_IP'])
+            except :
+                user_name = request.META['REMOTE_ADDR']
+        else :
+            ucookie = user_name
+
+        title = to_ascii_lazy(request.POST.get('title', 'untitled'))
+        tsms = long(time.time() * 1000)
+
         previous_ascii = previous.encode("utf-8")
         try:
             import hashlib
@@ -76,13 +94,13 @@ def main(request):
             useid = 'p' + hash[0:idsize]
 
             try :
-                Paste.objects.get(url=useid)
+                Paste.objects.get(url=useid, title=title, tsms=tsms, user_name=user_name)
             except :
                 id = useid
                 break
 
         if id :
-            p = Paste(content=previous, url=id)
+            p = Paste(content=previous, url=id, user_name=user_name, title=title, tsms=tsms)
             p.save()
         
             host = sanitize_nasty(request.get_host())
@@ -98,13 +116,6 @@ def main(request):
                 pub = ztx.socket(zmq.PUB)
                 pub.connect(settings.SIMPYL_PASTEBIN_ZMQ_URL)
 
-                if not user_name :
-                    try :
-                        user_name = sanitize_username(request.META['HTTP_X_REAL_IP'])
-                    except :
-                        user_name = request.META['REMOTE_ADDR']
-                else :
-                    ucookie = user_name
                 zm_action = "action::paste by %s: %s" % (user_name, previous)
                 pub.send(zm_action)
             
@@ -160,4 +171,8 @@ def fetch_paste(request):
     else :
         noteline = ''
 
-    return http.HttpResponse("<h1>paste.</h1><br /><a href=\"/\">make another</a><br />%s<br /><br /><tt>%s</tt>" % (noteline, esc_text))
+    when = 'unknown time'
+    if p.tsms :
+      when = datetime.datetime.fromtimestamp(int(p.tsms)/1000)
+
+    return http.HttpResponse("<h1>paste: %s by \"%s\" at %s.</h1><br /><a href=\"/\">make another</a><br />%s<br /><br /><tt>%s</tt>" % (cgi.escape(p.title), cgi.escape(p.user_name), when, noteline, esc_text))
