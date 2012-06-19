@@ -94,7 +94,7 @@ def main(request):
             useid = 'p' + hash[0:idsize]
 
             try :
-                Paste.objects.get(url=useid, title=title, tsms=tsms, user_name=user_name)
+                Paste.objects.get(url=useid)
             except :
                 id = useid
                 break
@@ -116,7 +116,7 @@ def main(request):
                 pub = ztx.socket(zmq.PUB)
                 pub.connect(settings.SIMPYL_PASTEBIN_ZMQ_URL)
 
-                zm_action = "action::paste by %s: %s" % (user_name, previous)
+                zm_action = "action::paste '%s' by %s: %s" % (title, user_name, previous)
                 pub.send(zm_action)
             
     t = loader.get_template('index.html')
