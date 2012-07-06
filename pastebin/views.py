@@ -177,6 +177,5 @@ def fetch_paste(request):
     if p.tsms :
       when = datetime.datetime.fromtimestamp(int(p.tsms)/1000)
 
-
-    title = 'paste: %s by \"%s\" at %s.' % (cgi.escape(p.title), cgi.escape(p.user_name), when)
-    return http.HttpResponse("<html><head><title>%s</title></head><body><h1>%s</h1><br /><a href=\"/\">make another</a><br />%s<br /><br /><tt>%s</tt></body></html>" % (title, title, noteline, esc_text))
+    title = '%s by \"%s\" at %s' % (cgi.escape(p.title), cgi.escape(p.user_name), when)
+    return http.HttpResponse("<html><head><title>%s</title></head><body><h1>paste: %s</h1><br /><a href=\"/\">make another</a><br />%s<br /><br /><tt>%s</tt></body></html>" % (title, title, noteline, esc_text))
