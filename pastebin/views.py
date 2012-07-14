@@ -17,6 +17,7 @@ import time, datetime
 from django import http
 from django.template import Context, loader
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
 
 import settings
 
@@ -52,6 +53,18 @@ def to_ascii_lazy(txt) :
 
 def sanitize_username(user_name) :
     return sanitize_nasty(user_name)[:64]
+
+def shared_rr(template_fn, cdict) :
+    if hasattr(settings, 'SIMPYL_PASTEBIN_NOTELINE') :
+        cdict['noteline'] = settings.SIMPYL_PASTEBIN_NOTELINE
+
+    if hasattr(settings, 'GA_ID') :
+        cdict['GA_ID'] = settings.GA_ID
+
+    c = Context(cdict)
+    
+    t = loader.get_template(template_fn)
+    return http.HttpResponse(t.render(c))
 
 def main(request):
     previous = request.POST.get('paste', '')
@@ -120,8 +133,6 @@ def main(request):
 
                 zm_action = "action::paste '%s' by %s: %s" % (title, user_name, previous)
                 pub.send(zm_action)
-            
-    t = loader.get_template('index.html')
 
     cdict = {
         'title': titl,
@@ -130,18 +141,35 @@ def main(request):
         'user_name': user_name
     }
 
-    if hasattr(settings, 'SIMPYL_PASTEBIN_NOTELINE') :
-        cdict['noteline'] = settings.SIMPYL_PASTEBIN_NOTELINE
+    resp = shared_rr('index.html', cdict)
 
-    if hasattr(settings, 'GA_ID') :
-        cdict['GA_ID'] = settings.GA_ID
-
-    c = Context(cdict)
-    
-    resp = http.HttpResponse(t.render(c))
     if ucookie :
         set_cookie(resp, 'user_name', ucookie, days_expire=365)
     return resp
+
+def search(request) :
+    # title user_name tsms url
+    if 'term' in request.POST :
+      term = request.POST['term']
+      qs = Paste.objects.filter(Q(title__icontains=term) | Q(content__icontains=term) | Q(user_name__icontains=term)).order_by('-id')
+      title = 'Search Results'
+    else :
+      qs = Paste.objects.order_by('-id')
+      title = 'Pastebin Search'
+
+    r = []
+    for paste in qs[0:100] :
+      r.append({
+        'title' : paste.title,
+        'user_name' : paste.user_name,
+        'tsms' : paste.tsms,
+        'url' : paste.url,
+      })
+
+    return shared_rr('search.html', {
+      'title' : title,
+      'results' : r
+    })
 
 def fetch_paste(request):
     url = request.META.get('PATH_INFO', '')[1:]

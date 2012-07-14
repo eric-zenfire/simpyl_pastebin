@@ -1,55 +1,13 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
-<html>
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>{{title_low}}</title>
-    <link href="/static/css/stylesheet.css" rel="stylesheet" type="text/css">
-    <script type="text/javascript" src="/static/js/jquery-1.4.js"></script>
-    <script type="text/javascript" src="/static/js/application.js"></script>
-  </head>
-  <body>
-    <div class="wrapper">
-      <div id="header">
-        <h1>{{title}}</h2>
-      </div>
-      {% if error %}
-      <div id="error">
-        {{error}}
-      </div>
-      {% endif %}
-      <div id="main">
-        {% if previous %}
-          you pasted: <a href="{{previous}}">{{previous}}</a>&nbsp;-&nbsp;{% if noteline %}{{noteline}}{% endif %}
-        {% endif %}
-        <form name="pastebin" method="post">
-          Your name: <input type="text" name="user_name" width="40" value="{% if user_name %}{{user_name}}{% endif %}" /><br />
-          Paste Title: <input type="text" name="title" value="" /><br />
-          <textarea id="bin" name="paste" rows="40" style="height: 70%; width: 100%;"></textarea><br />
-          <input type="submit" value="paste" />
-        </form>
-      </div>
+{% extends "base.html" %}
+{% block paste_main %}
+{% if previous %}
+  you pasted: <a href="{{previous}}">{{previous}}</a>&nbsp;-&nbsp;{% if noteline %}{{noteline}}{% endif %}
+{% endif %}
+<form name="pastebin" method="post">
+  Your name: <input type="text" name="user_name" width="40" value="{% if user_name %}{{user_name}}{% endif %}" /><br />
+  Paste Title: <input type="text" name="title" value="" /><br />
+  <textarea id="bin" name="paste" rows="40" style="height: 70%; width: 100%;"></textarea><br />
+  <input type="submit" value="paste" />
+</form>
+{% endblock %}
 
-      <div id="footer">
-        <ul>
-          <li><a href="http://github.com/excid3/simpyl_pastebin">Code</a></li>
-          <li><a href="http://github.com/excid3">Developer</a></li>
-          <li><a href="http://github.com/jluebbert">Designer</a></li>
-        </ul>
-      </div>
-
-      {% if GA_ID %}
-        <script type="text/javascript">
-          var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-          document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-        </script>
-        <script type="text/javascript">
-            try {
-              var pageTracker = _gat._getTracker({{GA_ID}});
-              pageTracker._trackPageview();
-            } catch(err) {}
-        </script>
-      {% endif %}
-    </div>
-  </body>
-</html>

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block paste_main %}
+<form name="search" method="post">
+  <input type="text" name="term" width="40" value="" />
+  <input type="submit" value="search pastes" />
+</form>
+
+{% if results %}
+  {% for paste in results %}
+    {{ paste.tsms }} <a href="/{{ paste.url }}">"{{ paste.title|escape }}" by "{{ paste.user_name|escape }}"</a><br />
+  {% endfor %}
+{% endif %}
+
+{% endblock %}
+

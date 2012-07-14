@@ -34,5 +34,6 @@ urlpatterns = patterns('',
     #(r'^static/(?P<path>.*)$', 'django.views.static.serve',
       #{'document_root': '/static'}),
     (r'^$', 'simpyl_pastebin.pastebin.views.main'),
+    (r'^search$', 'simpyl_pastebin.pastebin.views.search'),
     (r'', 'simpyl_pastebin.pastebin.views.fetch_paste'),
 )

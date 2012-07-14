@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>{{title_low}}</title>
+    <link href="/static/css/stylesheet.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="/static/js/jquery-1.4.js"></script>
+    <script type="text/javascript" src="/static/js/application.js"></script>
+  </head>
+  <body>
+    <div class="wrapper">
+      <div id="header">
+        <h1>{{title}}</h2>
+      </div>
+      {% if error %}
+      <div id="error">
+        {{error}}
+      </div>
+      {% endif %}
+      <div id="main">
+        {% block paste_main %}
+        This is the base template. If you're seeing this, it is in error.
+        {% endblock %}
+      </div>
+
+      <div id="footer">
+        <ul>
+          <li><a href="http://github.com/excid3/simpyl_pastebin">Code</a></li>
+          <li><a href="http://github.com/excid3">Developer</a></li>
+          <li><a href="http://github.com/jluebbert">Designer</a></li>
+        </ul>
+      </div>
+
+      {% if GA_ID %}
+        <script type="text/javascript">
+          var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+          document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+        </script>
+        <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker({{GA_ID}});
+              pageTracker._trackPageview();
+            } catch(err) {}
+        </script>
+      {% endif %}
+    </div>
+  </body>
+</html>
