@@ -153,9 +153,11 @@ def search(request) :
       term = request.POST['term']
       qs = Paste.objects.filter(Q(title__icontains=term) | Q(content__icontains=term) | Q(user_name__icontains=term)).order_by('-id')
       title = 'Search Results'
+      did_search = True
     else :
       qs = Paste.objects.order_by('-id')
       title = 'Pastebin Search'
+      did_search = False
 
     r = []
     for paste in qs[0:100] :
@@ -164,7 +166,6 @@ def search(request) :
       else :
         when = 'unknown time'
 
-      
       r.append({
         'title' : paste.title,
         'user_name' : paste.user_name,
@@ -172,10 +173,15 @@ def search(request) :
         'url' : paste.url,
       })
 
-    return shared_rr('search.html', {
+    cdict = {
       'title' : title,
       'results' : r
-    })
+    }
+
+    if did_search and not r :
+      cdict['empty_result'] = True
+
+    return shared_rr('search.html', cdict)
 
 def fetch_paste(request):
     url = request.META.get('PATH_INFO', '')[1:]

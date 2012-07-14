@@ -9,6 +9,10 @@
   {% for paste in results %}
     {{ paste.when }}&nbsp;&nbsp;<a href="/{{ paste.url }}">"{{ paste.title|escape }}" by "{{ paste.user_name|escape }}"</a><br />
   {% endfor %}
+{% else %}
+{% if empty_result %}
+Sorry, nothing was found. Try again?
+{% endif %}
 {% endif %}
 
 {% endblock %}

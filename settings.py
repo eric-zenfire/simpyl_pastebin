@@ -62,7 +62,7 @@ MEDIA_URL = '/static/'
 ADMIN_MEDIA_PREFIX = '/media/'
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = 'nx40t7!)(=ih68ul+6c4l0yoyjqm6s48ja#z((06e@g2w1o)p7'
+SECRET_KEY = 'h9e4sgvyfv4wooheav78ayo8earf8hear78gehar8g 7n'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -92,4 +92,14 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'simpyl_pastebin.pastebin',
+    'south',
 )
+
+SIMPYL_PASTEBIN_TITLE = 'Bigtick Pastebin'
+SIMPYL_PASTEBIN_NOTELINE = 'This service is internal to Bigtick and will not be accessible outside of the company.'
+SIMPYL_SEARCH_PATH_OK = 'int.bigwells.net'
+
+SIMPYL_PASTEBIN_ZMQ_URL = 'tcp://devcast.ch1:5555'
+
+SESSION_COOKIE_DOMAIN = 'paste.slim.ch1'
+SESSION_COOKIE_SECURE = False
