@@ -7,7 +7,7 @@
 
 {% if results %}
   {% for paste in results %}
-    {{ paste.tsms }} <a href="/{{ paste.url }}">"{{ paste.title|escape }}" by "{{ paste.user_name|escape }}"</a><br />
+    {{ paste.when }}&nbsp;&nbsp;<a href="/{{ paste.url }}">"{{ paste.title|escape }}" by "{{ paste.user_name|escape }}"</a><br />
   {% endfor %}
 {% endif %}
 

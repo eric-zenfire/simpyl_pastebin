@@ -159,10 +159,16 @@ def search(request) :
 
     r = []
     for paste in qs[0:100] :
+      if paste.tsms :
+        when = datetime.datetime.fromtimestamp(int(paste.tsms)/1000)
+      else :
+        when = 'unknown time'
+
+      
       r.append({
         'title' : paste.title,
         'user_name' : paste.user_name,
-        'tsms' : paste.tsms,
+        'when' : when,
         'url' : paste.url,
       })
 
