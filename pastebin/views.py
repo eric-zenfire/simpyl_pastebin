@@ -19,6 +19,12 @@ from django.template import Context, loader
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
 
+from pygments import highlight
+from pygments.lexers import get_lexer_by_name
+from pygments.formatters import HtmlFormatter
+from pygments.lexers import guess_lexer
+from pygments.lexers.special import TextLexer
+import pygments.util
 import settings
 
 from models import Paste
@@ -197,17 +203,17 @@ def fetch_paste(request):
             'error': "Paste requested does not exist, or internal error."
         })
         return http.HttpResponse(t.render(c))
-   
-    repl = [
-        ("\t", "  "),
-        (" ", "&nbsp;"),
-        ("\n","<br />")
-    ]
 
-    esc_text = cgi.escape(p.content)
-    for a,b in repl :
-        esc_text = esc_text.replace(a,b)
+    try :
+      lexer = guess_lexer(p.content)
+    except pygments.util.ClassNotFound :
+      lexer = TextLexer
 
+    formatter = HtmlFormatter(linenos=False, cssclass="source")
+    esc_text = highlight(p.content, lexer, formatter)
+    css_additional = formatter.get_style_defs('.source')
+    bottom_note = 'Highlighted with Pygments lexer ' + lexer.__class__.__name__
+    
     if hasattr(settings, 'SIMPYL_PASTEBIN_NOTELINE') :
         noteline = cgi.escape(settings.SIMPYL_PASTEBIN_NOTELINE)
     else :
@@ -218,4 +224,4 @@ def fetch_paste(request):
       when = datetime.datetime.fromtimestamp(int(p.tsms)/1000)
 
     title = '%s by \"%s\" at %s' % (cgi.escape(p.title), cgi.escape(p.user_name), when)
-    return http.HttpResponse("<html><head><title>%s</title></head><body><h1>paste: %s</h1><br /><a href=\"/search\">browse pastes</a>&nbsp;/&nbsp;<a href=\"/\">make another</a><br />%s<br /><br /><tt>%s</tt></body></html>" % (title, title, noteline, esc_text))
+    return http.HttpResponse("<html><head><style>%s</style><title>%s</title></head><body><h1>paste: %s</h1><br /><a href=\"/search\">browse pastes</a>&nbsp;/&nbsp;<a href=\"/\">make another</a><br />%s<br /><br />%s<br /><br />%s</body></html>" % (css_additional, title, title, noteline, esc_text, bottom_note))
